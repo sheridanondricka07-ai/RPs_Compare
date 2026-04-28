@@ -58,14 +58,40 @@ async def analyze_domains(request: AnalysisRequest):
     if len(request.best) > 100 or len(request.bad) > 100:
         raise HTTPException(status_code=400, detail="Maximum 100 domains per side allowed.")
 
-    best_tasks = [analyze_single_domain(d) for d in request.best if d.strip()]
-    bad_tasks = [analyze_single_domain(d) for d in request.bad if d.strip()]
+    # Limit concurrency to avoid overwhelming the server or hitting rate limits
+    semaphore = asyncio.Semaphore(10)
 
-    best_results = await asyncio.gather(*best_tasks, return_exceptions=True)
-    bad_results = await asyncio.gather(*bad_tasks, return_exceptions=True)
+    async def sem_analyze(domain):
+        async with semaphore:
+            try:
+                # Set a strict per-domain timeout
+                return await asyncio.wait_for(analyze_single_domain(domain), timeout=15.0)
+            except Exception:
+                return None
+
+    best_tasks = [sem_analyze(d) for d in request.best if d.strip()]
+    bad_tasks = [sem_analyze(d) for d in request.bad if d.strip()]
+
+    try:
+        # Global timeout to ensure we return something before Render kills the request (30s)
+        results = await asyncio.wait_for(
+            asyncio.gather(*best_tasks, *bad_tasks), 
+            timeout=25.0
+        )
+        
+        best_results = results[:len(best_tasks)]
+        bad_results = results[len(best_tasks):]
+    except asyncio.TimeoutError:
+        # On timeout, we can't easily get partial results from gather
+        # So we use a different approach if we want partials, but for now let's just fail gracefully
+        # or try to return whatever is already done by using return_exceptions=True
+        raise HTTPException(status_code=504, detail="Analysis timed out. Try fewer domains at once.")
 
     valid_best = [r for r in best_results if isinstance(r, DomainReport)]
     valid_bad = [r for r in bad_results if isinstance(r, DomainReport)]
+
+    if not valid_best and not valid_bad:
+        raise HTTPException(status_code=400, detail="No domains could be analyzed. Check your input.")
 
     comparison = AnalysisEngine.compare_groups(
         [r.model_dump() for r in valid_best],
