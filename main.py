@@ -35,7 +35,13 @@ async def analyze_single_domain(domain: str) -> DomainReport:
 
     email_auth = DNSService.analyze_email_auth(domain, dns_records["txt"])
     cdn = DNSService.detect_cdn(dns_records)
+    
+    # New Gmail-centric checks
     dns_records["cdn"] = cdn
+    dns_records["mx_provider"] = DNSService.detect_mx_provider(dns_records["mx"])
+    dns_records["reverse_dns"] = DNSService.get_reverse_dns(dns_records["a"][0]) if dns_records["a"] else None
+    
+    email_auth["google_verification"] = any("google-site-verification" in txt.lower() for txt in dns_records["txt"])
 
     report_data = {
         "domain": domain,

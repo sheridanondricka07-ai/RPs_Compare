@@ -49,6 +49,7 @@
                 <div class="tabs">
                     <div class="tab active" data-tab="differences">Differences</div>
                     <div class="tab" data-tab="scores">Score Breakdown</div>
+                    <div class="tab" data-tab="isp">ISP/Gmail</div>
                     <div class="tab" data-tab="raw">Raw Data</div>
                 </div>
 
@@ -81,6 +82,19 @@
                                 <thead><tr><th>Domain</th><th>Score</th></tr></thead>
                                 <tbody></tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="isp" class="tab-content">
+                    <div class="comparison-grid">
+                        <div class="input-card">
+                            <h4 class="best" style="margin-bottom: 1rem;">Best Group ISP Health</h4>
+                            <div id="best-isp-content" class="isp-list"></div>
+                        </div>
+                        <div class="input-card">
+                            <h4 class="bad" style="margin-bottom: 1rem;">Bad Group ISP Health</h4>
+                            <div id="bad-isp-content" class="isp-list"></div>
                         </div>
                     </div>
                 </div>

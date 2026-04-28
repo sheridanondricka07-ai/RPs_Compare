@@ -10,11 +10,15 @@ class DNSRecords(BaseModel):
     ttl: Dict[str, int] = {}
     hosting_info: Optional[Dict[str, Any]] = None
     cdn: Optional[str] = None
+    mx_provider: Optional[str] = None
+    reverse_dns: Optional[str] = None
 
 class EmailAuth(BaseModel):
     spf: Dict[str, Any] = {"exists": False, "valid": False, "raw": "", "size": 0, "includes_count": 0, "includes": []}
     dkim: Dict[str, Any] = {"exists": False, "selectors": []}
     dmarc: Dict[str, Any] = {"exists": False, "policy": "none", "raw": ""}
+    bimi: Dict[str, Any] = {"exists": False, "raw": ""}
+    google_verification: bool = False
 
 class DomainMetadata(BaseModel):
     age_days: Optional[int] = None

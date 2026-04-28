@@ -83,6 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#best-score-table tbody').innerHTML = bestScoreRows;
         document.querySelector('#bad-score-table tbody').innerHTML = badScoreRows;
 
+        // ISP Health
+        const bestIspItems = data.best_domains.map(d => Components.renderISPItem(d.domain, d)).join('');
+        const badIspItems = data.bad_domains.map(d => Components.renderISPItem(d.domain, d)).join('');
+        document.getElementById('best-isp-content').innerHTML = bestIspItems;
+        document.getElementById('bad-isp-content').innerHTML = badIspItems;
+
         // Raw Data
         document.getElementById('raw-output').textContent = JSON.stringify(data, null, 2);
     }

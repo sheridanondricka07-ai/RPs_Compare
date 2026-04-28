@@ -38,5 +38,24 @@ const Components = {
                 <td><span class="badge" style="background: ${scoreColor}33; color: ${scoreColor}">${item.score}</span></td>
             </tr>
         `;
+    },
+
+    renderISPItem(domain, data) {
+        const googleVerified = data.email_auth.google_verification ? '✅' : '❌';
+        const bimiStatus = data.email_auth.bimi.exists ? '✅' : '❌';
+        const mxProvider = data.dns.mx_provider || 'Unknown';
+        const ptr = data.dns.reverse_dns ? '✅' : '❌';
+
+        return `
+            <div style="padding: 1rem; background: var(--glass); border-radius: 0.5rem; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                <div style="font-weight: 600; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">${domain}</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <span>Google Postmaster: ${googleVerified}</span>
+                    <span>BIMI Ready: ${bimiStatus}</span>
+                    <span>MX: ${mxProvider}</span>
+                    <span>PTR/rDNS: ${ptr}</span>
+                </div>
+            </div>
+        `;
     }
 };

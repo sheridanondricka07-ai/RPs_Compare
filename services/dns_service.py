@@ -30,7 +30,8 @@ class DNSService:
         auth = {
             "spf": {"exists": False, "valid": False, "raw": "", "size": 0, "includes_count": 0, "includes": []},
             "dkim": {"exists": False, "selectors": []},
-            "dmarc": {"exists": False, "policy": "none", "raw": ""}
+            "dmarc": {"exists": False, "policy": "none", "raw": ""},
+            "bimi": {"exists": False, "raw": ""}
         }
 
         # SPF
@@ -59,6 +60,18 @@ class DNSService:
         except Exception:
             pass
 
+        # BIMI
+        try:
+            bimi_answers = dns.resolver.resolve(f"default._bimi.{domain}", "TXT")
+            for rdata in bimi_answers:
+                record = str(rdata).strip('"')
+                if record.startswith("v=BIMI1"):
+                    auth["bimi"]["exists"] = True
+                    auth["bimi"]["raw"] = record
+                    break
+        except Exception:
+            pass
+
         # DKIM (Best effort common selectors)
         common_selectors = ["default", "google", "mandrill", "mail", "k1", "dkim"]
         for selector in common_selectors:
@@ -70,6 +83,36 @@ class DNSService:
                 continue
 
         return auth
+
+    @staticmethod
+    def detect_mx_provider(mx_records: list):
+        if not mx_records:
+            return "None"
+        
+        providers = {
+            "google": ["google.com", "googlemail.com"],
+            "outlook": ["outlook.com", "protection.outlook.com"],
+            "mimecast": ["mimecast.com"],
+            "proofpoint": ["pphosted.com"],
+            "zoho": ["zoho.com"]
+        }
+        
+        for mx in mx_records:
+            for provider, domains in providers.items():
+                if any(d in mx.lower() for d in domains):
+                    return provider.capitalize()
+        return "Custom/Unknown"
+
+    @staticmethod
+    def get_reverse_dns(ip: str):
+        if not ip:
+            return None
+        try:
+            # Simple reverse DNS lookup
+            addr = dns.reversename.from_address(ip)
+            return str(dns.resolver.resolve(addr, "PTR")[0]).rstrip('.')
+        except Exception:
+            return None
 
     @staticmethod
     def detect_cdn(records: dict):
