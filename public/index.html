@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Comparator Pro | Advanced Domain Analysis</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Domain Comparator Pro</h1>
+            <p style="color: var(--text-muted)">Compare "Best" vs "Bad" domains to uncover technical and reputational patterns.</p>
+        </header>
+
+        <main>
+            <div class="comparison-grid">
+                <div class="input-card">
+                    <h2 class="best">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Best Domains
+                    </h2>
+                    <textarea id="best-input" placeholder="Enter domains (one per line)...&#10;google.com&#10;microsoft.com"></textarea>
+                </div>
+                <div class="input-card">
+                    <h2 class="bad">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                        Bad Domains
+                    </h2>
+                    <textarea id="bad-input" placeholder="Enter domains (one per line)...&#10;spam-site.xyz&#10;phish-link.net"></textarea>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button id="compare-btn" class="compare-btn">Compare Domains</button>
+            </div>
+
+            <section id="results">
+                <div class="results-summary" id="summary-cards">
+                    <!-- Stat cards injected here -->
+                </div>
+
+                <div class="insights-list" id="insights-container">
+                    <h3>Key Insights</h3>
+                    <div id="insights-content"></div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" data-tab="differences">Differences</div>
+                    <div class="tab" data-tab="scores">Score Breakdown</div>
+                    <div class="tab" data-tab="raw">Raw Data</div>
+                </div>
+
+                <div id="differences" class="tab-content active">
+                    <table id="diff-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Best Avg</th>
+                                <th>Bad Avg</th>
+                                <th>Difference</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div id="scores" class="tab-content">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h4>Best Domains</h4>
+                            <table id="best-score-table">
+                                <thead><tr><th>Domain</th><th>Score</th></tr></thead>
+                                tbody</tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <h4>Bad Domains</h4>
+                            <table id="bad-score-table">
+                                <thead><tr><th>Domain</th><th>Score</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="raw" class="tab-content">
+                    <pre id="raw-output" style="background: var(--glass); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.8rem;"></pre>
+                </div>
+                
+                <div style="margin-top: 2rem; text-align: right; display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button id="export-json" class="badge" style="background: var(--primary); cursor: pointer; border: none; padding: 0.5rem 1rem; color: white;">Export JSON</button>
+                    <button id="export-csv" class="badge" style="background: #10b981; cursor: pointer; border: none; padding: 0.5rem 1rem; color: white;">Export CSV</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loading-text">Analyzing domains... This may take a minute.</p>
+    </div>
+
+    <script src="components.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

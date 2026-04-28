@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+dnspython
+python-whois
+httpx
+beautifulsoup4
+pandas
