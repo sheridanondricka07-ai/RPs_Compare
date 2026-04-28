@@ -73,6 +73,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const insightsHtml = data.insights.map(i => Components.renderInsight(i)).join('');
         document.getElementById('insights-content').innerHTML = insightsHtml || "No major differences detected.";
 
+        // Conclusion Logic
+        const conclusionBox = document.getElementById('conclusion-box');
+        const conclusionText = document.getElementById('conclusion-text');
+        
+        if (data.differences.length > 0) {
+            const topDiff = data.differences.reduce((prev, current) => (Math.abs(prev.diff) > Math.abs(current.diff)) ? prev : current);
+            let summary = `Analysis of ${data.best_domains.length + data.bad_domains.length} domains revealed a clear technical gap. `;
+            
+            if (data.summary.best.avg_score > data.summary.bad.avg_score + 15) {
+                summary += `The **Best Group** significantly outperforms the Bad group with an average trust score of **${Math.round(data.summary.best.avg_score)}/100**. `;
+            }
+
+            summary += `The most critical difference is in **${topDiff.metric}**, where the Best group has a **${Math.abs(topDiff.diff).toFixed(1)}% advantage**. `;
+            
+            if (data.summary.best.spf_valid_pct > data.summary.bad.spf_valid_pct + 20) {
+                summary += "This suggests that the Bad group likely suffers from poor email authentication setup, leading to higher spam filtering. ";
+            }
+
+            if (data.summary.best.google_verify_pct > data.summary.bad.google_verify_pct + 10) {
+                summary += "Furthermore, the Best group's integration with Google services indicates a more professional and monitored email infrastructure.";
+            }
+
+            conclusionText.innerHTML = summary;
+            conclusionBox.style.display = 'block';
+        } else {
+            conclusionBox.style.display = 'none';
+        }
+
         // Differences Table
         const diffRows = data.differences.map(d => Components.renderDiffRow(d)).join('');
         document.querySelector('#diff-table tbody').innerHTML = diffRows || "<tr><td colspan='4' style='text-align:center'>Insufficient data for significant differences.</td></tr>";
