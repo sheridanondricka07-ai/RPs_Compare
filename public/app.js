@@ -1,4 +1,7 @@
-const API_URL = ""; // Relative to origin
+// Auto-detect backend: Render in production, localhost for dev
+const API_URL = window.location.hostname === "localhost" || window.location.protocol === "file:"
+    ? "http://localhost:8000"
+    : "https://domain-comparator-api.onrender.com";
 
 document.addEventListener('DOMContentLoaded', () => {
     const compareBtn = document.getElementById('compare-btn');
