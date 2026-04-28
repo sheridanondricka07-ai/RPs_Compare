@@ -27,22 +27,20 @@ async def analyze_single_domain(domain: str) -> DomainReport:
     if not domain:
         raise ValueError("Empty domain")
 
-    dns_records = DNSService.get_records(domain)
+    dns_records = await DNSService.get_records(domain)
     whois_task = asyncio.to_thread(WhoisService.get_metadata, domain)
     web_task = WebService.analyze_website(domain)
 
     metadata, web_analysis = await asyncio.gather(whois_task, web_task)
 
-    email_auth = DNSService.analyze_email_auth(domain, dns_records["txt"])
+    email_auth = await DNSService.analyze_email_auth(domain, dns_records["txt"])
     cdn = DNSService.detect_cdn(dns_records)
     
     # New Gmail-centric checks
     dns_records["cdn"] = cdn
     dns_records["mx_provider"] = DNSService.detect_mx_provider(dns_records["mx"])
-    dns_records["reverse_dns"] = DNSService.get_reverse_dns(dns_records["a"][0]) if dns_records["a"] else None
+    dns_records["reverse_dns"] = await DNSService.get_reverse_dns(dns_records["a"][0]) if dns_records["a"] else None
     
-    email_auth["google_verification"] = any("google-site-verification" in txt.lower() for txt in dns_records["txt"])
-
     report_data = {
         "domain": domain,
         "dns": dns_records,
