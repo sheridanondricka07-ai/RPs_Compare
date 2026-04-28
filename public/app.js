@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const results = document.getElementById('results');
     let lastResults = null;
 
+    // Wake up the Render backend immediately on page load
+    fetch(`${API_URL}/health`).catch(() => {});
+
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
