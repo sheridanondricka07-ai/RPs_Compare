@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             results.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
             console.error(error);
-            alert("An error occurred during analysis. Make sure the backend is running.");
+            alert(`Analysis Error: ${error.message}\n\nThis usually happens if the backend server is still waking up (Render Free Tier) or if there is a network issue. Please wait 30 seconds and try again.`);
         } finally {
             loading.style.display = 'none';
             compareBtn.disabled = false;
