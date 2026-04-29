@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ best: bestDomains, bad: badDomains })
             });
 
-            if (!response.ok) throw new Error("Analysis failed");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || "Analysis failed");
+            }
 
             const data = await response.json();
             lastResults = data;

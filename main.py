@@ -52,6 +52,13 @@ async def analyze_single_domain(domain: str) -> DomainReport:
     dns_records["mx_provider"] = DNSService.detect_mx_provider(dns_records["mx"])
     dns_records["reverse_dns"] = await DNSService.get_reverse_dns(dns_records["a"][0]) if dns_records["a"] else None
     
+    # Ensure metadata has all required fields for Pydantic validation
+    metadata["length"] = metadata.get("length", 0)
+    metadata["has_digits"] = metadata.get("has_digits", False)
+    metadata["hyphen_count"] = metadata.get("hyphen_count", 0)
+    metadata["keywords"] = metadata.get("keywords", [])
+    metadata["tld"] = metadata.get("tld") or domain.split('.')[-1]
+
     report_data = {
         "domain": domain,
         "dns": dns_records,
@@ -61,8 +68,12 @@ async def analyze_single_domain(domain: str) -> DomainReport:
         "reputation": {"blacklisted": False, "blacklist_count": 0, "mx_quality": "Good" if dns_records["mx"] else "None"}
     }
 
-    report_data["score"] = AnalysisEngine.calculate_score(report_data)
-    return DomainReport(**report_data)
+    try:
+        report_data["score"] = AnalysisEngine.calculate_score(report_data)
+        return DomainReport(**report_data)
+    except Exception as e:
+        print(f"Validation error for {domain}: {e}")
+        return None
 
 @app.post("/analyze", response_model=ComparisonReport)
 async def analyze_domains(request: AnalysisRequest):
