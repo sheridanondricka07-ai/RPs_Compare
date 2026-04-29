@@ -78,24 +78,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const conclusionText = document.getElementById('conclusion-text');
         
         if (data.differences.length > 0) {
-            const topDiff = data.differences.reduce((prev, current) => (Math.abs(prev.diff) > Math.abs(current.diff)) ? prev : current);
-            let summary = `Analysis of ${data.best_domains.length + data.bad_domains.length} domains revealed a clear technical gap. `;
-            
-            if (data.summary.best.avg_score > data.summary.bad.avg_score + 15) {
-                summary += `The **Best Group** significantly outperforms the Bad group with an average trust score of **${Math.round(data.summary.best.avg_score)}/100**. `;
-            }
+            let verdict = `<p style="margin-bottom: 1rem;">Analysis of **${data.best_domains.length} Best** vs **${data.bad_domains.length} Bad** domains revealed several critical technical and structural gaps:</p>`;
+            verdict += `<ul style="padding-left: 1.5rem; margin-bottom: 1rem;">`;
 
-            summary += `The most critical difference is in **${topDiff.metric}**, where the Best group has a **${Math.abs(topDiff.diff).toFixed(1)}% advantage**. `;
-            
-            if (data.summary.best.spf_valid_pct > data.summary.bad.spf_valid_pct + 20) {
-                summary += "This suggests that the Bad group likely suffers from poor email authentication setup, leading to higher spam filtering. ";
-            }
+            // Sort differences by absolute impact
+            const sortedDiffs = [...data.differences].sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
 
-            if (data.summary.best.google_verify_pct > data.summary.bad.google_verify_pct + 10) {
-                summary += "Furthermore, the Best group's integration with Google services indicates a more professional and monitored email infrastructure.";
-            }
+            sortedDiffs.forEach(diff => {
+                const isPositive = diff.diff > 0;
+                const impact = Math.abs(diff.diff).toFixed(1);
+                
+                let comment = "";
+                if (diff.metric.includes("Spf")) comment = "— indicating much stronger email authentication in the Best group.";
+                if (diff.metric.includes("Dmarc")) comment = "— showing stricter security policies that Gmail/Outlook trust more.";
+                if (diff.metric.includes("Https")) comment = "— suggesting the Bad group uses less secure or placeholder infrastructure.";
+                if (diff.metric.includes("Age")) comment = "— highlighting the trust advantage of older, established domains.";
+                if (diff.metric.includes("Google")) comment = "— confirming a higher level of integration with Google Workspace/Postmaster.";
+                if (diff.metric.includes("Digit") || diff.metric.includes("Hyphen")) comment = "— a common trait of automated or low-quality burner domains.";
+                if (diff.metric.includes("Length")) comment = "— showing a tendency for longer, more complex names in the underperforming group.";
 
-            conclusionText.innerHTML = summary;
+                verdict += `<li style="margin-bottom: 0.5rem;">
+                    <strong>${diff.metric}</strong>: The Best group has a 
+                    <span style="color: ${isPositive ? 'var(--success)' : 'var(--error)'}; font-weight: 800;">
+                        ${impact}% ${isPositive ? 'advantage' : 'decrease'}
+                    </span> ${comment}
+                </li>`;
+            });
+
+            verdict += `</ul>`;
+
+            const scoreDiff = data.summary.best.avg_score - data.summary.bad.avg_score;
+            verdict += `<p style="font-weight: 600; color: var(--primary);">
+                Verdict: The Best group is statistically **${(scoreDiff / (data.summary.bad.avg_score || 1) * 100).toFixed(0)}% more "trustworthy"** 
+                based on ISP signals and domain infrastructure.
+            </p>`;
+
+            conclusionText.innerHTML = verdict;
             conclusionBox.style.display = 'block';
         } else {
             conclusionBox.style.display = 'none';
