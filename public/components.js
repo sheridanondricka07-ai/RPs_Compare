@@ -57,5 +57,24 @@ const Components = {
                 </div>
             </div>
         `;
+    },
+
+    renderStructureItem(domain, data) {
+        const meta = data.metadata;
+        const keywords = meta.keywords.length > 0 ? meta.keywords.join(', ') : 'None';
+        const hasDigits = meta.has_digits ? 'Yes' : 'No';
+        
+        return `
+            <div style="padding: 1rem; background: var(--glass); border-radius: 0.5rem; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                <div style="font-weight: 600; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">${domain}</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <span>Length: ${meta.length} chars</span>
+                    <span>Extension: .${meta.tld}</span>
+                    <span>Hyphens: ${meta.hyphen_count}</span>
+                    <span>Digits: ${hasDigits}</span>
+                    <span style="grid-column: span 2; color: var(--primary);">Keywords: ${keywords}</span>
+                </div>
+            </div>
+        `;
     }
 };

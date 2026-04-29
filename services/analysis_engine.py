@@ -47,17 +47,27 @@ class AnalysisEngine:
                 "https_pct": (df["web.https"].sum() / len(df) * 100) if "web.https" in df else 0,
                 "google_verify_pct": (df["email_auth.google_verification"].sum() / len(df) * 100) if "email_auth.google_verification" in df else 0,
                 "bimi_pct": (df["email_auth.bimi.exists"].sum() / len(df) * 100) if "email_auth.bimi.exists" in df else 0,
-                "avg_age_days": df["metadata.age_days"].mean() if "metadata.age_days" in df else 0
+                "avg_age_days": df["metadata.age_days"].mean() if "metadata.age_days" in df else 0,
+                "avg_length": df["metadata.length"].mean() if "metadata.length" in df else 0,
+                "digit_pct": (df["metadata.has_digits"].sum() / len(df) * 100) if "metadata.has_digits" in df else 0,
+                "hyphen_pct": (df[df["metadata.hyphen_count"] > 0].shape[0] / len(df) * 100) if "metadata.hyphen_count" in df else 0
             }
             return stats
 
         best_stats = get_stats(best)
         bad_stats = get_stats(bad)
         
+        # TLD Comparison
+        def get_tlds(group):
+            return [d["metadata"]["tld"] for d in group if "metadata" in d and "tld" in d["metadata"]]
+        
+        best_tlds = get_tlds(best)
+        bad_tlds = get_tlds(bad)
+        
         differences = []
         for key in best_stats:
             diff = best_stats[key] - bad_stats.get(key, 0)
-            if abs(diff) > 10: # Significance threshold
+            if abs(diff) > 5: # Lowered threshold for structural diffs
                 differences.append({
                     "metric": key.replace("_", " ").title().replace("Pct", "%"),
                     "best": best_stats[key],

@@ -117,6 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('best-isp-content').innerHTML = bestIspItems;
         document.getElementById('bad-isp-content').innerHTML = badIspItems;
 
+        // Structure
+        const bestStructureItems = data.best_domains.map(d => Components.renderStructureItem(d.domain, d)).join('');
+        const badStructureItems = data.bad_domains.map(d => Components.renderStructureItem(d.domain, d)).join('');
+        document.getElementById('best-structure-content').innerHTML = bestStructureItems;
+        document.getElementById('bad-structure-content').innerHTML = badStructureItems;
+
         // Raw Data
         document.getElementById('raw-output').textContent = JSON.stringify(data, null, 2);
     }

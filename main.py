@@ -33,6 +33,17 @@ async def analyze_single_domain(domain: str) -> DomainReport:
 
     metadata, web_analysis = await asyncio.gather(whois_task, web_task)
 
+    # Structural Analysis
+    domain_parts = domain.split('.')
+    main_name = domain_parts[0]
+    
+    metadata["length"] = len(main_name)
+    metadata["has_digits"] = any(char.isdigit() for char in main_name)
+    metadata["hyphen_count"] = main_name.count('-')
+    
+    common_keywords = ["bank", "login", "update", "verify", "secure", "mail", "office", "support", "admin", "cloud"]
+    metadata["keywords"] = [k for k in common_keywords if k in main_name]
+
     email_auth = await DNSService.analyze_email_auth(domain, dns_records["txt"])
     cdn = DNSService.detect_cdn(dns_records)
     

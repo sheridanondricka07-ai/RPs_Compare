@@ -25,6 +25,10 @@ class DomainMetadata(BaseModel):
     created_date: Optional[str] = None
     registrar: Optional[str] = None
     tld: str
+    length: int = 0
+    has_digits: bool = False
+    hyphen_count: int = 0
+    keywords: List[str] = []
 
 class WebAnalysis(BaseModel):
     status_code: Optional[int] = None
